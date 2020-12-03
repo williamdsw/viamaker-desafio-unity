@@ -3,41 +3,41 @@ using System.Collections.Generic;
 using System.Text;
 using Mono.Data.Sqlite;
 
-public class CourseClassService : CourseClassRepository
+public class TurmaService : TurmaRepository
 {
     private DatabaseService database = new DatabaseService();
 
-    public bool Insert(CourseClass courseClass)
+    public bool Insert(Turma turma)
     {
         bool hasInserted = false;
 
         using (var connection = database.OpenConnection())
         {
-            string query = " INSERT INTO course_class (name, school_id) VALUES (@name, @school_id) ";
+            string query = " INSERT INTO turma (nome, escola_id) VALUES (@nome, @escola_id) ";
             SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@name", courseClass.Name);
-            command.Parameters.AddWithValue("@school_id", courseClass.School.Id);
+            command.Parameters.AddWithValue("@nome", turma.Nome);
+            command.Parameters.AddWithValue("@escola_id", turma.Escola.Id);
             hasInserted = (command.ExecuteNonQuery() == 1);
         }
       
         return hasInserted;
     }
 
-    public bool Update(CourseClass courseClass)
+    public bool Update(Turma turma)
     {
-        this.FindById(courseClass.Id);
+        this.FindById(turma.Id);
 
         bool hasUpdated = false;
 
         using (var connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
-            query.Append(" UPDATE course_class SET name = @name ");
-            query.Append(" WHERE id = @id and school_id = @school_id ");
+            query.Append(" UPDATE turma SET nome = @nome ");
+            query.Append(" WHERE id = @id AND escola_id = @escola_id ");
             SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            command.Parameters.AddWithValue("@name", courseClass.Name);
-            command.Parameters.AddWithValue("@id", courseClass.Id);
-            command.Parameters.AddWithValue("@school_id", courseClass.School.Id);
+            command.Parameters.AddWithValue("@nome", turma.Nome);
+            command.Parameters.AddWithValue("@id", turma.Id);
+            command.Parameters.AddWithValue("@escola_id", turma.Escola.Id);
             hasUpdated = (command.ExecuteNonQuery() == 1);
         }
 
@@ -52,7 +52,7 @@ public class CourseClassService : CourseClassRepository
 
         using (var connection = database.OpenConnection())
         {
-            string query = " DELETE FROM course_class WHERE id = @id ";
+            string query = " DELETE FROM turma WHERE id = @id ";
             SqliteCommand command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             hasDeleted = (command.ExecuteNonQuery() == 1);
@@ -61,54 +61,54 @@ public class CourseClassService : CourseClassRepository
         return hasDeleted;
     }
 
-    public bool DeleteAllBySchool(int schoolId)
+    public bool DeleteAllByEscola(int escolaId)
     {
         bool hasDeleted = false;
-        int numberOfClasses = this.FindBySchool(schoolId).Count;
+        int numberOfClasses = this.FindByEscola(escolaId).Count;
 
         using (var connection = database.OpenConnection())
         {
-            string query = " DELETE FROM course_class WHERE school_id = @school_id";
+            string query = " DELETE FROM turma WHERE escola_id = @escola_id";
             SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@school_id", schoolId);
+            command.Parameters.AddWithValue("@escola_id", escolaId);
             hasDeleted = (command.ExecuteNonQuery() == numberOfClasses);
         }
 
         return hasDeleted;
     }
 
-    public List<CourseClass> FindBySchool(int schoolId)
+    public List<Turma> FindByEscola(int escolaId)
     {
-        List<CourseClass> courseClasses = new List<CourseClass>();
+        List<Turma> turmaes = new List<Turma>();
 
         using (var connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
-            query.Append(" SELECT id, name FROM course_class ");
-            query.Append(" INNER JOIN school ON (course_class.school_id = school.id) ");
-            query.Append(" WHERE chool_id = @school_id ");
+            query.Append(" SELECT id, nome FROM turma ");
+            query.Append(" INNER JOIN escola ON (turma.escola_id = escola.id) ");
+            query.Append(" WHERE chool_id = @escola_id ");
             query.Append(" ORDER BY id ASC ");
             SqliteCommand command = new SqliteCommand(query.ToString(), connection);
             SqliteDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                CourseClass courseClass = new CourseClass();
-                courseClass.Id = int.Parse(reader[0].ToString());
-                courseClass.Name = reader[1].ToString();
-                courseClasses.Add(courseClass);
+                Turma turma = new Turma();
+                turma.Id = int.Parse(reader[0].ToString());
+                turma.Nome = reader[1].ToString();
+                turmaes.Add(turma);
             }
         }
 
-        return courseClasses;
+        return turmaes;
     }
 
-    public CourseClass FindById(int id)
+    public Turma FindById(int id)
     {
-        CourseClass courseClass = new CourseClass();
+        Turma turma = new Turma();
 
         using (var connection = database.OpenConnection())
         {
-            string query = " SELECT id, name FROM course_class WHERE id = @id ";
+            string query = " SELECT id, nome FROM turma WHERE id = @id ";
             SqliteCommand command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
 
@@ -116,13 +116,13 @@ public class CourseClassService : CourseClassRepository
             bool exists = reader.Read();
             if (!exists)
             {
-                throw new Exception (string.Format("Course Class not found by id {0}", id));
+                throw new Exception (string.Format("Turma não encontrada para classe: {0}", id));
             }
             
-            courseClass.Id = int.Parse(reader[0].ToString());
-            courseClass.Name = reader[1].ToString();
+            turma.Id = int.Parse(reader[0].ToString());
+            turma.Nome = reader[1].ToString();
         }
 
-        return courseClass;
+        return turma;
     }
 }

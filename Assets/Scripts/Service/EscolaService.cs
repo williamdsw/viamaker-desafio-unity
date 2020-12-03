@@ -2,37 +2,37 @@
 using System.Collections.Generic;
 using Mono.Data.Sqlite;
 
-public class SchoolService : SchoolRepository
+public class EscolaService : EscolaRepository
 {
     private DatabaseService database = new DatabaseService();
 
-    public bool Insert(School school)
+    public bool Insert(Escola escola)
     {
         bool hasInserted = false;
 
         using (var connection = database.OpenConnection())
         {
-            string query = " INSERT INTO school (name) VALUES (@name) ";
+            string query = " INSERT INTO escola (nome) VALUES (@nome) ";
             SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@name", school.Name);
+            command.Parameters.AddWithValue("@nome", escola.Nome);
             hasInserted = (command.ExecuteNonQuery() == 1);
         }
       
         return hasInserted;
     }
 
-    public bool Update(School school)
+    public bool Update(Escola escola)
     {
-        this.FindById(school.Id);
+        this.FindById(escola.Id);
 
         bool hasUpdated = false;
 
         using (var connection = database.OpenConnection())
         {
-            string query = " UPDATE school SET name = @name WHERE id = @id ";
+            string query = " UPDATE escola SET nome = @nome WHERE id = @id ";
             SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@name", school.Name);
-            command.Parameters.AddWithValue("@id", school.Id);
+            command.Parameters.AddWithValue("@nome", escola.Nome);
+            command.Parameters.AddWithValue("@id", escola.Id);
             hasUpdated = (command.ExecuteNonQuery() == 1);
         }
 
@@ -47,7 +47,7 @@ public class SchoolService : SchoolRepository
 
         using (var connection = database.OpenConnection())
         {
-            string query = " DELETE FROM school WHERE id = @id ";
+            string query = " DELETE FROM escola WHERE id = @id ";
             SqliteCommand command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             hasDeleted = (command.ExecuteNonQuery() == 1);
@@ -56,34 +56,34 @@ public class SchoolService : SchoolRepository
         return hasDeleted;
     }
 
-    public List<School> FindAll()
+    public List<Escola> FindAll()
     {
-        List<School> schools = new List<School>();
+        List<Escola> escolas = new List<Escola>();
 
         using (var connection = database.OpenConnection())
         {
-            string query = " SELECT id, name FROM school ORDER BY name ASC ";
+            string query = " SELECT id, nome FROM escola ORDER BY nome ASC ";
             SqliteCommand command = new SqliteCommand(query, connection);
             SqliteDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                School school = new School();
-                school.Id = int.Parse(reader[0].ToString());
-                school.Name = reader[1].ToString();
-                schools.Add(school);
+                Escola escola = new Escola();
+                escola.Id = int.Parse(reader[0].ToString());
+                escola.Nome = reader[1].ToString();
+                escolas.Add(escola);
             }
         }
 
-        return schools;
+        return escolas;
     }
 
-    public School FindById(int id)
+    public Escola FindById(int id)
     {
-        School school = new School();
+        Escola escola = new Escola();
 
         using (var connection = database.OpenConnection())
         {
-            string query = " SELECT id, name FROM school WHERE id = @id ";
+            string query = " SELECT id, nome FROM escola WHERE id = @id ";
             SqliteCommand command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
 
@@ -91,13 +91,13 @@ public class SchoolService : SchoolRepository
             bool exists = reader.Read();
             if (!exists)
             {
-                throw new Exception (string.Format("School not found by id {0}", id));
+                throw new Exception (string.Format("Escola não encontrada pelo id: {0}", id));
             }
             
-            school.Id = int.Parse(reader[0].ToString());
-            school.Name = reader[1].ToString();
+            escola.Id = int.Parse(reader[0].ToString());
+            escola.Nome = reader[1].ToString();
         }
 
-        return school;
+        return escola;
     }
 }

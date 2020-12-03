@@ -3,41 +3,41 @@ using System.Collections.Generic;
 using System.Text;
 using Mono.Data.Sqlite;
 
-public class StudentService : StudentRepository
+public class AlunoService : AlunoRepository
 {
     private DatabaseService database = new DatabaseService();
 
-    public bool Insert(Student student)
+    public bool Insert(Aluno aluno)
     {
         bool hasInserted = false;
 
         using (var connection = database.OpenConnection())
         {
-            string query = " INSERT INTO student (name, class_id) VALUES (@name, @class_id) ";
+            string query = " INSERT INTO aluno (nome, turma_id) VALUES (@nome, @turma_id) ";
             SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@name", student.Name);
-            command.Parameters.AddWithValue("@class_id", student.CourseClass.Id);
+            command.Parameters.AddWithValue("@nome", aluno.Nome);
+            command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
             hasInserted = (command.ExecuteNonQuery() == 1);
         }
       
         return hasInserted;
     }
 
-    public bool Update(Student student)
+    public bool Update(Aluno aluno)
     {
-        this.FindById(student.Id);
+        this.FindById(aluno.Id);
 
         bool hasUpdated = false;
 
         using (var connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
-            query.Append(" UPDATE student SET name = @name ");
-            query.Append(" WHERE id = @id and class_id = @class_id ");
+            query.Append(" UPDATE aluno SET nome = @nome ");
+            query.Append(" WHERE id = @id and turma_id = @turma_id ");
             SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            command.Parameters.AddWithValue("@name", student.Name);
-            command.Parameters.AddWithValue("@id", student.Id);
-            command.Parameters.AddWithValue("@class_id", student.CourseClass.Id);
+            command.Parameters.AddWithValue("@nome", aluno.Nome);
+            command.Parameters.AddWithValue("@id", aluno.Id);
+            command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
             hasUpdated = (command.ExecuteNonQuery() == 1);
         }
 
@@ -52,7 +52,7 @@ public class StudentService : StudentRepository
 
         using (var connection = database.OpenConnection())
         {
-            string query = " DELETE FROM student WHERE id = @id ";
+            string query = " DELETE FROM aluno WHERE id = @id ";
             SqliteCommand command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             hasDeleted = (command.ExecuteNonQuery() == 1);
@@ -61,54 +61,54 @@ public class StudentService : StudentRepository
         return hasDeleted;
     }
 
-    public bool DeleteAllByClass(int classId)
+    public bool DeleteAllByTurma(int turmaId)
     {
         bool hasDeleted = false;
-        int numberOfStudents = this.FindByClass(classId).Count;
+        int count = this.FindByTurma(turmaId).Count;
 
         using (var connection = database.OpenConnection())
         {
-            string query = " DELETE FROM student WHERE class_id = @class_id";
+            string query = " DELETE FROM aluno WHERE turma_id = @turma_id";
             SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@class_id", classId);
-            hasDeleted = (command.ExecuteNonQuery() == numberOfStudents);
+            command.Parameters.AddWithValue("@turma_id", turmaId);
+            hasDeleted = (command.ExecuteNonQuery() == count);
         }
 
         return hasDeleted;
     }
 
-    public List<Student> FindByClass(int classId)
+    public List<Aluno> FindByTurma(int turmaId)
     {
-        List<Student> students = new List<Student>();
+        List<Aluno> alunos = new List<Aluno>();
 
         using (var connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
-            query.Append(" SELECT id, name FROM student ");
-            query.Append(" INNER JOIN course_class ON (student.class_id = course_class.id) ");
-            query.Append(" WHERE class_id = @class_id ");
-            query.Append(" ORDER BY name ASC ");
+            query.Append(" SELECT id, nome FROM aluno ");
+            query.Append(" INNER JOIN turma ON (aluno.turma_id = turma.id) ");
+            query.Append(" WHERE turma_id = @turma_id ");
+            query.Append(" ORDER BY nome ASC ");
             SqliteCommand command = new SqliteCommand(query.ToString(), connection);
             SqliteDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                Student student = new Student();
-                student.Id = int.Parse(reader[0].ToString());
-                student.Name = reader[1].ToString();
-                students.Add(student);
+                Aluno aluno = new Aluno();
+                aluno.Id = int.Parse(reader[0].ToString());
+                aluno.Nome = reader[1].ToString();
+                alunos.Add(aluno);
             }
         }
 
-        return students;
+        return alunos;
     }
 
-    public Student FindById(int id)
+    public Aluno FindById(int id)
     {
-        Student student = new Student();
+        Aluno aluno = new Aluno();
 
         using (var connection = database.OpenConnection())
         {
-            string query = " SELECT id, name FROM student WHERE id = @id ";
+            string query = " SELECT id, nome FROM aluno WHERE id = @id ";
             SqliteCommand command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
 
@@ -116,13 +116,13 @@ public class StudentService : StudentRepository
             bool exists = reader.Read();
             if (!exists)
             {
-                throw new Exception (string.Format("Student not found by id {0}", id));
+                throw new Exception (string.Format("Aluno não encontrado pelo id: {0}", id));
             }
             
-            student.Id = int.Parse(reader[0].ToString());
-            student.Name = reader[1].ToString();
+            aluno.Id = int.Parse(reader[0].ToString());
+            aluno.Nome = reader[1].ToString();
         }
 
-        return student;
+        return aluno;
     }
 }

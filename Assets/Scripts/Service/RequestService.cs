@@ -1,34 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class RequestService : MonoBehaviour
+public class RequestService
 {
-    private const string BASE_URL = "http://uniescolas.viamaker.com.br/api";
-
-    public void TesteRequest()
+    public IEnumerator GetRequest(string url, Action<string> response)
     {
-        StartCoroutine(GetRequest(BASE_URL + "/obter/escola"));
-    }
-
-    private IEnumerator GetRequest(string uri)
-    {
-        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
-            string token = "Bearer 8mspL8yN09CgSQ3sgMfwQkfNm2bO64NW2789Wo0EodONKcuKeUtu1taZjG3Wu5XQUi61uxIZiDqxlxuaoZW9LJ5Hj992DNp6H0pk1wA6h4CZdtZkV6fv5xv8mKcFmkQe";
-            request.SetRequestHeader("Authorization", token);
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", $"Bearer {Environment.TOKEN_API}");
             yield return request.SendWebRequest();
 
-            if (!request.isNetworkError)
+            if (request.isNetworkError)
             {
-                string content = request.downloadHandler.text;
-                Debug.Log("Content: " + content);
+                throw new Exception("Some error happened");
             }
-            else
-            {
-                Debug.Log("Error: " + request.downloadHandler.error);
-            }
+
+            response(request.downloadHandler.text);
         }
     }
 }

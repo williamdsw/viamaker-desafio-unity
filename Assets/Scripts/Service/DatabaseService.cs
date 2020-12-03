@@ -5,16 +5,9 @@ using Mono.Data.Sqlite;
 
 public class DatabaseService
 {
-    private string url = Constants.DATABASE_URL;
-
-    public DatabaseService()
-    {
-        url = string.Format(url, Application.persistentDataPath);
-    }
-
     public SqliteConnection OpenConnection()
     {
-        SqliteConnection connection = new SqliteConnection(url);
+        SqliteConnection connection = new SqliteConnection(Environment.databaseUrl);
         connection.Open();
         return connection;
     }
