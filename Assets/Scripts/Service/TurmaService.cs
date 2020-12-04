@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Mono.Data.Sqlite;
+using UnityEngine;
 
 public class TurmaService : TurmaRepository
 {
@@ -18,6 +19,26 @@ public class TurmaService : TurmaRepository
             command.Parameters.AddWithValue("@nome", turma.Nome);
             command.Parameters.AddWithValue("@escola_id", turma.Escola.Id);
             hasInserted = (command.ExecuteNonQuery() == 1);
+        }
+      
+        return hasInserted;
+    }
+
+    public bool InsertMultiples(List<Turma> turmas)
+    {
+        bool hasInserted = false;
+
+        using (var connection = database.OpenConnection())
+        {
+            StringBuilder query = new StringBuilder();
+            foreach (var turma in turmas)
+            {
+                string format = " INSERT INTO turma (nome, escola_id) VALUES (\'{0}\', {1}); ";
+                query.AppendFormat(format, turma.Nome, turma.Escola.Id);
+            }
+
+            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
+            hasInserted = (command.ExecuteNonQuery() == turmas.Count);
         }
       
         return hasInserted;

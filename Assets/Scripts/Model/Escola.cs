@@ -20,4 +20,9 @@ public class Escola
         Id = id;
         Nome = nome;
     }
+
+    public Escola(string nome)
+    {
+        Nome = nome;
+    }
 }

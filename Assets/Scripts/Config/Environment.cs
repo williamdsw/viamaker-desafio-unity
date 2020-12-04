@@ -4,8 +4,11 @@ public class Environment
 {
     public static string databaseFilePath = $"{Application.persistentDataPath}/viamaker";
     public static string databaseUrl = $"URI=file:{databaseFilePath}";
-    public const string  BASE_API = "http://uniescolas.viamaker.com.br/api";
+    private const string  BASE_API = "http://uniescolas.viamaker.com.br/api";
     public const string TOKEN_API = "8mspL8yN09CgSQ3sgMfwQkfNm2bO64NW2789Wo0EodONKcuKeUtu1taZjG3Wu5XQUi61uxIZiDqxlxuaoZW9LJ5Hj992DNp6H0pk1wA6h4CZdtZkV6fv5xv8mKcFmkQe";
+
+    public static string FindSchoolUrl { get =>  $"{BASE_API}/obter/escola"; }
+    public static string GetStudentsByClassUrl { get =>  $"{BASE_API}/listar/alunos/turma"; }
 
     public static string CreateTableEscola 
     {

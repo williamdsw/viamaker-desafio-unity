@@ -3,6 +3,7 @@
 public interface TurmaRepository
 {
     bool Insert(Turma turma);
+    bool InsertMultiples(List<Turma> turmas);
     bool Update(Turma turma);
     bool DeleteById(int id);
     bool DeleteAllByEscola(int escolaId);

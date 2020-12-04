@@ -23,6 +23,26 @@ public class AlunoService : AlunoRepository
         return hasInserted;
     }
 
+    public bool InsertMultiples(List<Aluno> alunos)
+    {
+        bool hasInserted = false;
+
+        using (var connection = database.OpenConnection())
+        {
+            StringBuilder query = new StringBuilder();
+            foreach (var aluno in alunos)
+            {
+                string format = " INSERT INTO aluno (nome, turma_id) VALUES (\'{0}\', {1}); ";
+                query.AppendFormat(format, aluno.Nome, aluno.Turma.Id);
+            }
+
+            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
+            hasInserted = (command.ExecuteNonQuery() == alunos.Count);
+        }
+      
+        return hasInserted;
+    }
+
     public bool Update(Aluno aluno)
     {
         this.FindById(aluno.Id);

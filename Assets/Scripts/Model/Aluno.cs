@@ -12,9 +12,16 @@ public class Aluno
     public Turma Turma { get; set; }
 
     public Aluno() {}
+
     public Aluno(int id, string nome, Turma turma)
     {
         Id = id;
+        Nome = nome;
+        Turma = turma;
+    }
+
+    public Aluno(string nome, Turma turma)
+    {
         Nome = nome;
         Turma = turma;
     }

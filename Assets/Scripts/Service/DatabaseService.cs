@@ -12,10 +12,8 @@ public class DatabaseService
         return connection;
     }
 
-    public bool CreateTable(string query)
+    public void CreateTable(string query)
     {
-        bool hasCreated = false;
-
         if (string.IsNullOrEmpty (query) || string.IsNullOrWhiteSpace(query))
         {
             throw new Exception ("Create table query cannot be null or empty!");
@@ -25,9 +23,7 @@ public class DatabaseService
         {
             IDbCommand command = connection.CreateCommand();
             command.CommandText = query;
-            hasCreated = (command.ExecuteNonQuery() == 1);
+            command.ExecuteNonQuery();
         }
-
-        return hasCreated;
     }
 }

@@ -3,6 +3,7 @@
 public interface AlunoRepository
 {
     bool Insert(Aluno aluno);
+    bool InsertMultiples(List<Aluno> alunos);
     bool Update(Aluno aluno);
     bool DeleteById(int id);
     bool DeleteAllByTurma(int turmaId);
