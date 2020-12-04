@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Networking;
 
 public class RequestService
@@ -16,7 +15,7 @@ public class RequestService
 
             if (request.isNetworkError)
             {
-                throw new Exception("Some error happened");
+                throw new Exception("Erro ao buscar recursos!");
             }
 
             response(request.downloadHandler.text);
@@ -33,7 +32,7 @@ public class RequestService
 
             if (request.isNetworkError)
             {
-                throw new Exception("Some error happened");
+                throw new Exception("Erro ao buscar recursos!");
             }
 
             response(request.downloadHandler.text);

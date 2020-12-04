@@ -15,10 +15,12 @@ public class TurmaService : TurmaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " INSERT INTO turma (nome, escola_id) VALUES (@nome, @escola_id) ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@nome", turma.Nome);
-            command.Parameters.AddWithValue("@escola_id", turma.Escola.Id);
-            hasInserted = (command.ExecuteNonQuery() == 1);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nome", turma.Nome);
+                command.Parameters.AddWithValue("@escola_id", turma.Escola.Id);
+                hasInserted = (command.ExecuteNonQuery() == 1);
+            }
         }
       
         return hasInserted;
@@ -37,8 +39,10 @@ public class TurmaService : TurmaRepository
                 query.AppendFormat(format, turma.Nome, turma.Escola.Id);
             }
 
-            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            hasInserted = (command.ExecuteNonQuery() == turmas.Count);
+            using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
+            {
+                hasInserted = (command.ExecuteNonQuery() == turmas.Count);
+            }
         }
       
         return hasInserted;
@@ -55,11 +59,14 @@ public class TurmaService : TurmaRepository
             StringBuilder query = new StringBuilder();
             query.Append(" UPDATE turma SET nome = @nome ");
             query.Append(" WHERE id = @id AND escola_id = @escola_id ");
-            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            command.Parameters.AddWithValue("@nome", turma.Nome);
-            command.Parameters.AddWithValue("@id", turma.Id);
-            command.Parameters.AddWithValue("@escola_id", turma.Escola.Id);
-            hasUpdated = (command.ExecuteNonQuery() == 1);
+
+            using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
+            {
+                command.Parameters.AddWithValue("@nome", turma.Nome);
+                command.Parameters.AddWithValue("@id", turma.Id);
+                command.Parameters.AddWithValue("@escola_id", turma.Escola.Id);
+                hasUpdated = (command.ExecuteNonQuery() == 1);
+            }
         }
 
         return hasUpdated;
@@ -74,9 +81,11 @@ public class TurmaService : TurmaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " DELETE FROM turma WHERE id = @id ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@id", id);
-            hasDeleted = (command.ExecuteNonQuery() == 1);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                hasDeleted = (command.ExecuteNonQuery() == 1);
+            }
         }
 
         return hasDeleted;
@@ -90,9 +99,11 @@ public class TurmaService : TurmaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " DELETE FROM turma WHERE escola_id = @escola_id";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@escola_id", escolaId);
-            hasDeleted = (command.ExecuteNonQuery() == numberOfClasses);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@escola_id", escolaId);
+                hasDeleted = (command.ExecuteNonQuery() == numberOfClasses);
+            }
         }
 
         return hasDeleted;
@@ -100,27 +111,33 @@ public class TurmaService : TurmaRepository
 
     public List<Turma> FindByEscola(int escolaId)
     {
-        List<Turma> turmaes = new List<Turma>();
+        List<Turma> turmas = new List<Turma>();
 
         using (var connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
-            query.Append(" SELECT id, nome FROM turma ");
-            query.Append(" INNER JOIN escola ON (turma.escola_id = escola.id) ");
-            query.Append(" WHERE chool_id = @escola_id ");
-            query.Append(" ORDER BY id ASC ");
-            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            SqliteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            query.Append(" SELECT turma.id, turma.nome FROM turma AS turma ");
+            query.Append(" INNER JOIN escola AS escola ON (turma.escola_id = escola.id) ");
+            query.Append(" WHERE escola.id = @id ");
+            query.Append(" ORDER BY turma.id ASC ");
+
+            using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
             {
-                Turma turma = new Turma();
-                turma.Id = int.Parse(reader[0].ToString());
-                turma.Nome = reader[1].ToString();
-                turmaes.Add(turma);
+                command.Parameters.AddWithValue("@id", escolaId);
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Turma turma = new Turma();
+                        turma.Id = int.Parse(reader[0].ToString());
+                        turma.Nome = reader[1].ToString();
+                        turmas.Add(turma);
+                    }
+                }
             }
         }
 
-        return turmaes;
+        return turmas;
     }
 
     public Turma FindById(int id)
@@ -130,18 +147,21 @@ public class TurmaService : TurmaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " SELECT id, nome FROM turma WHERE id = @id ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@id", id);
-
-            SqliteDataReader reader = command.ExecuteReader();
-            bool exists = reader.Read();
-            if (!exists)
+            using (SqliteCommand command = new SqliteCommand(query, connection))
             {
-                throw new Exception (string.Format("Turma não encontrada para classe: {0}", id));
+                command.Parameters.AddWithValue("@id", id);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        throw new Exception (string.Format("Turma não encontrada para classe: {0}", id));
+                    }
+                    
+                    turma.Id = int.Parse(reader[0].ToString());
+                    turma.Nome = reader[1].ToString();
+                }
             }
-            
-            turma.Id = int.Parse(reader[0].ToString());
-            turma.Nome = reader[1].ToString();
         }
 
         return turma;

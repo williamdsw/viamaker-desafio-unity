@@ -8,10 +8,11 @@ public class EscolaController : MonoBehaviour
 {
     [Header ("Main Container")]
     [SerializeField] private GameObject mainContainer;
-    [SerializeField] private ScrollRect mainScrollView;
-    [SerializeField] private GameObject itemsContent;
-    [SerializeField] private Button newSchoolButton;
-    [SerializeField] private GameObject escolaItemPrefab;
+    [SerializeField] private ScrollRect scrollView;
+    [SerializeField] private GameObject content;
+    [SerializeField] private Button closeButton;
+    [SerializeField] private Button newButton;
+    [SerializeField] private GameObject itemPrefab;
     [SerializeField] private GameObject emptyText;
 
     [Header ("Create | Update Escola Container")]
@@ -32,40 +33,51 @@ public class EscolaController : MonoBehaviour
 
     private void Start() 
     {
+        localEscola.Id = 0;
         modalController = this.GetComponent<MessageModalController>();
         confirmModalController = this.GetComponent<ConfirmModalController>();
         turmaController = this.GetComponent<TurmaController>();
         BindEventListeners();
-        LoadEscolaItems();
     }
 
     private void BindEventListeners()
     {
         if (createUpdateContainer)
         {
-            if (newSchoolButton && discardButton && headerTitle && nameInput)
+            if (closeButton && newButton && discardButton && acceptButton && headerTitle && nameInput)
             {
-                newSchoolButton.onClick.AddListener(() => ToggleCreateUpdateContainer(null, true));
+                closeButton.onClick.AddListener(() => Application.Quit());
+                newButton.onClick.AddListener(() => ToggleCreateUpdateContainer(null, true));
                 discardButton.onClick.AddListener(() => ToggleCreateUpdateContainer(null, false));
+                acceptButton.onClick.AddListener(() => HandleOnClick());
             }
         }
     }
 
-    private void LoadEscolaItems()
+    public void Show()
+    {
+        if (mainContainer)
+        {
+            mainContainer.SetActive(true);
+            LoadEscolas();
+        }
+    }
+
+    private void LoadEscolas()
     {
         try
         {
-            if (itemsContent && escolaItemPrefab && emptyText)
+            if (content && itemPrefab && emptyText)
             {
-                for (int index = 0; index < itemsContent.transform.childCount; index++)
+                for (int index = 0; index < content.transform.childCount; index++)
                 {
-                    Transform child = itemsContent.transform.GetChild(index);
+                    Transform child = content.transform.GetChild(index);
                     Destroy(child.gameObject);
                 }
 
                 List<Escola> escolas = escolaService.FindAll();
                 emptyText.SetActive((escolas.Count == 0));
-                mainScrollView.transform.parent.gameObject.SetActive((escolas.Count != 0));
+                scrollView.transform.parent.gameObject.SetActive((escolas.Count != 0));
 
                 if (escolas.Count == 0)
                 {
@@ -74,8 +86,8 @@ public class EscolaController : MonoBehaviour
 
                 foreach (var escola in escolas)
                 {
-                    GameObject item = Instantiate(escolaItemPrefab) as GameObject;
-                    item.transform.SetParent(itemsContent.transform, false);
+                    GameObject item = Instantiate(itemPrefab) as GameObject;
+                    item.transform.SetParent(content.transform, false);
                     
                     // Children
                     Transform nameText = item.transform.Find("NameText");
@@ -92,36 +104,7 @@ public class EscolaController : MonoBehaviour
                     if (deleteButton)
                     {
                         var button = deleteButton.GetComponent<Button>();
-                        button.onClick.AddListener(() =>
-                        {
-                            confirmModalController.Show(response => 
-                            {
-                                if (response)
-                                {
-                                    bool hasDeleted = false;
-                                    var turmas = turmaService.FindByEscola(escola.Id);
-                                    if (turmas.Count >= 1)
-                                    {
-                                        foreach (var turma in turmas)
-                                        {
-                                            hasDeleted = alunoService.DeleteAllByTurma(turma.Id);
-                                        }
-
-                                        hasDeleted = turmaService.DeleteAllByEscola(escola.Id);
-                                    }
-
-                                    hasDeleted = escolaService.DeleteById(escola.Id);
-                                    string title = (hasDeleted ? "Sucesso" : "Falha");
-                                    string message = (hasDeleted ? "Operação concluída!" : "Erro na operação!");
-                                    modalController.Show(title, message, (hasDeleted ? Color.green : Color.red));
-
-                                    if (hasDeleted)
-                                    {
-                                        LoadEscolaItems();
-                                    }
-                                }
-                            });
-                        });
+                        button.onClick.AddListener(() => HandleOnDelete(escola));
                     }
 
                     if (editButton)
@@ -133,7 +116,7 @@ public class EscolaController : MonoBehaviour
                     if (classesButton)
                     {
                         var button = classesButton.GetComponent<Button>();
-                        button.onClick.AddListener(null);
+                        button.onClick.AddListener(() => turmaController.Show(escola));
                     }
                 }
             }
@@ -146,17 +129,11 @@ public class EscolaController : MonoBehaviour
 
     private void ToggleCreateUpdateContainer(Escola escola, bool show)
     {
-        this.localEscola.Id = 0;
-        this.localEscola = (escola != null ? escola : new Escola());
-
-        if (show)
-        {
-            string title = (escola == null ? "Nova Escola" : "Atualizar Escola");
-            headerTitle.SetText(title);
-        }
-
-        nameInput.text = (escola != null && show ? escola.Nome : null);
-        acceptButton.onClick.AddListener(HandleOnClick);
+        this.localEscola.Id = (escola != null && show ? escola.Id : 0);
+        this.localEscola.Nome = (escola != null && show ? escola.Nome : null);
+        string title = (escola == null ? "Nova Escola" : "Atualizar Escola");
+        nameInput.text = this.localEscola.Nome;
+        headerTitle.SetText(title);
         createUpdateContainer.SetActive(show);
     }
 
@@ -167,7 +144,7 @@ public class EscolaController : MonoBehaviour
             string name = nameInput.text;
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
             {
-                modalController.Show("Atenção", "É necessário informar o Nome!", Color.blue);
+                modalController.Show("Atenção", "É necessário informar o Nome!", Color.gray);
                 return;
             }
 
@@ -177,11 +154,49 @@ public class EscolaController : MonoBehaviour
             string message = (hasExecuted ? "Operação concluída!" : "Erro na operação!");
             modalController.Show(title, message, (hasExecuted ? Color.green : Color.red));
             ToggleCreateUpdateContainer(null, false);
-            LoadEscolaItems();
+            LoadEscolas();
         }
         catch (Exception ex)
         {
             modalController.Show("Atenção", ex.Message, Color.red);
         }
+    }
+
+    private void HandleOnDelete(Escola escola)
+    {
+        confirmModalController.Show(response => 
+        {
+            try
+            {
+                if (response)
+                {
+                    bool hasDeleted = false;
+                    var turmas = turmaService.FindByEscola(escola.Id);
+                    if (turmas.Count >= 1)
+                    {
+                        foreach (var turma in turmas)
+                        {
+                            hasDeleted = alunoService.DeleteAllByTurma(turma.Id);
+                        }
+
+                        hasDeleted = turmaService.DeleteAllByEscola(escola.Id);
+                    }
+
+                    hasDeleted = escolaService.DeleteById(escola.Id);
+                    string title = (hasDeleted ? "Sucesso" : "Falha");
+                    string message = (hasDeleted ? "Operação concluída!" : "Erro na operação!");
+                    modalController.Show(title, message, (hasDeleted ? Color.green : Color.red));
+
+                    if (hasDeleted)
+                    {
+                        LoadEscolas();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                modalController.Show("Atenção", ex.Message, Color.red);
+            }
+        });
     }
 }

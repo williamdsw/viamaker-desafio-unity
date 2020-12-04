@@ -16,14 +16,16 @@ public class DatabaseService
     {
         if (string.IsNullOrEmpty (query) || string.IsNullOrWhiteSpace(query))
         {
-            throw new Exception ("Create table query cannot be null or empty!");
+            throw new Exception ("Query para criação de tabela não pode ser vazia!");
         }
 
         using (SqliteConnection connection = this.OpenConnection())
         {
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = query;
-            command.ExecuteNonQuery();
+            using (IDbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = query;
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

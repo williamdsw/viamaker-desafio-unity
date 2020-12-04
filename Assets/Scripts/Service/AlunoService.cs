@@ -14,10 +14,12 @@ public class AlunoService : AlunoRepository
         using (var connection = database.OpenConnection())
         {
             string query = " INSERT INTO aluno (nome, turma_id) VALUES (@nome, @turma_id) ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@nome", aluno.Nome);
-            command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
-            hasInserted = (command.ExecuteNonQuery() == 1);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nome", aluno.Nome);
+                command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
+                hasInserted = (command.ExecuteNonQuery() == 1);
+            }
         }
       
         return hasInserted;
@@ -36,8 +38,10 @@ public class AlunoService : AlunoRepository
                 query.AppendFormat(format, aluno.Nome, aluno.Turma.Id);
             }
 
-            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            hasInserted = (command.ExecuteNonQuery() == alunos.Count);
+            using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
+            {
+                hasInserted = (command.ExecuteNonQuery() == alunos.Count);
+            }
         }
       
         return hasInserted;
@@ -53,12 +57,15 @@ public class AlunoService : AlunoRepository
         {
             StringBuilder query = new StringBuilder();
             query.Append(" UPDATE aluno SET nome = @nome ");
-            query.Append(" WHERE id = @id and turma_id = @turma_id ");
-            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            command.Parameters.AddWithValue("@nome", aluno.Nome);
-            command.Parameters.AddWithValue("@id", aluno.Id);
-            command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
-            hasUpdated = (command.ExecuteNonQuery() == 1);
+            query.Append(" WHERE id = @id AND turma_id = @turma_id ");
+
+            using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
+            {
+                command.Parameters.AddWithValue("@nome", aluno.Nome);
+                command.Parameters.AddWithValue("@id", aluno.Id);
+                command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
+                hasUpdated = (command.ExecuteNonQuery() == 1);
+            }
         }
 
         return hasUpdated;
@@ -73,9 +80,11 @@ public class AlunoService : AlunoRepository
         using (var connection = database.OpenConnection())
         {
             string query = " DELETE FROM aluno WHERE id = @id ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@id", id);
-            hasDeleted = (command.ExecuteNonQuery() == 1);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                hasDeleted = (command.ExecuteNonQuery() == 1);
+            }
         }
 
         return hasDeleted;
@@ -89,9 +98,11 @@ public class AlunoService : AlunoRepository
         using (var connection = database.OpenConnection())
         {
             string query = " DELETE FROM aluno WHERE turma_id = @turma_id";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@turma_id", turmaId);
-            hasDeleted = (command.ExecuteNonQuery() == count);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@turma_id", turmaId);
+                hasDeleted = (command.ExecuteNonQuery() == count);
+            }
         }
 
         return hasDeleted;
@@ -104,18 +115,24 @@ public class AlunoService : AlunoRepository
         using (var connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
-            query.Append(" SELECT id, nome FROM aluno ");
-            query.Append(" INNER JOIN turma ON (aluno.turma_id = turma.id) ");
-            query.Append(" WHERE turma_id = @turma_id ");
-            query.Append(" ORDER BY nome ASC ");
-            SqliteCommand command = new SqliteCommand(query.ToString(), connection);
-            SqliteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            query.Append(" SELECT aluno.id, aluno.nome FROM aluno AS aluno ");
+            query.Append(" INNER JOIN turma AS turma ON (aluno.turma_id = turma.id) ");
+            query.Append(" WHERE turma.id = @turma_id ");
+            query.Append(" ORDER BY aluno.nome ASC ");
+
+            using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
             {
-                Aluno aluno = new Aluno();
-                aluno.Id = int.Parse(reader[0].ToString());
-                aluno.Nome = reader[1].ToString();
-                alunos.Add(aluno);
+                command.Parameters.AddWithValue("@turma_id", turmaId);
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Aluno aluno = new Aluno();
+                        aluno.Id = int.Parse(reader[0].ToString());
+                        aluno.Nome = reader[1].ToString();
+                        alunos.Add(aluno);
+                    }
+                }
             }
         }
 
@@ -129,18 +146,21 @@ public class AlunoService : AlunoRepository
         using (var connection = database.OpenConnection())
         {
             string query = " SELECT id, nome FROM aluno WHERE id = @id ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@id", id);
-
-            SqliteDataReader reader = command.ExecuteReader();
-            bool exists = reader.Read();
-            if (!exists)
+            using (SqliteCommand command = new SqliteCommand(query, connection))
             {
-                throw new Exception (string.Format("Aluno não encontrado pelo id: {0}", id));
+                command.Parameters.AddWithValue("@id", id);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        throw new Exception (string.Format("Aluno não encontrado pelo id: {0}", id));
+                    }
+                    
+                    aluno.Id = int.Parse(reader[0].ToString());
+                    aluno.Nome = reader[1].ToString();
+                }
             }
-            
-            aluno.Id = int.Parse(reader[0].ToString());
-            aluno.Nome = reader[1].ToString();
         }
 
         return aluno;

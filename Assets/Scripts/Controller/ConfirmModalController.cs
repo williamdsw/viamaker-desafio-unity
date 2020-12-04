@@ -21,6 +21,8 @@ public class ConfirmModalController : MonoBehaviour
     {
         if (confirmModal && noButton && yesButton)
         {
+            noButton.onClick.RemoveAllListeners();
+            yesButton.onClick.RemoveAllListeners();
             noButton.onClick.AddListener(() => StartCoroutine(SetResult (false, callback)));
             yesButton.onClick.AddListener(() => StartCoroutine(SetResult (true, callback)));
             confirmModal.SetActive(true);

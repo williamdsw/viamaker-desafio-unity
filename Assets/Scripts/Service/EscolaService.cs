@@ -13,9 +13,11 @@ public class EscolaService : EscolaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " INSERT INTO escola (nome) VALUES (@nome) ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@nome", escola.Nome);
-            hasInserted = (command.ExecuteNonQuery() == 1);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nome", escola.Nome);
+                hasInserted = (command.ExecuteNonQuery() == 1);
+            }
         }
       
         return hasInserted;
@@ -30,10 +32,12 @@ public class EscolaService : EscolaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " UPDATE escola SET nome = @nome WHERE id = @id ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@nome", escola.Nome);
-            command.Parameters.AddWithValue("@id", escola.Id);
-            hasUpdated = (command.ExecuteNonQuery() == 1);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nome", escola.Nome);
+                command.Parameters.AddWithValue("@id", escola.Id);
+                hasUpdated = (command.ExecuteNonQuery() == 1);
+            }
         }
 
         return hasUpdated;
@@ -48,9 +52,11 @@ public class EscolaService : EscolaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " DELETE FROM escola WHERE id = @id ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@id", id);
-            hasDeleted = (command.ExecuteNonQuery() == 1);
+            using (SqliteCommand command = new SqliteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                hasDeleted = (command.ExecuteNonQuery() == 1);
+            }
         }
 
         return hasDeleted;
@@ -63,14 +69,18 @@ public class EscolaService : EscolaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " SELECT id, nome FROM escola ORDER BY nome ASC ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            SqliteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            using (SqliteCommand command = new SqliteCommand(query, connection))
             {
-                Escola escola = new Escola();
-                escola.Id = int.Parse(reader[0].ToString());
-                escola.Nome = reader[1].ToString();
-                escolas.Add(escola);
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Escola escola = new Escola();
+                        escola.Id = int.Parse(reader[0].ToString());
+                        escola.Nome = reader[1].ToString();
+                        escolas.Add(escola);
+                    }
+                }
             }
         }
 
@@ -84,18 +94,21 @@ public class EscolaService : EscolaRepository
         using (var connection = database.OpenConnection())
         {
             string query = " SELECT id, nome FROM escola WHERE id = @id ";
-            SqliteCommand command = new SqliteCommand(query, connection);
-            command.Parameters.AddWithValue("@id", id);
-
-            SqliteDataReader reader = command.ExecuteReader();
-            bool exists = reader.Read();
-            if (!exists)
+            using (SqliteCommand command = new SqliteCommand(query, connection))
             {
-                throw new Exception (string.Format("Escola não encontrada pelo id: {0}", id));
+                command.Parameters.AddWithValue("@id", id);
+
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        throw new Exception (string.Format("Escola não encontrada pelo id: {0}", id));
+                    }
+                    
+                    escola.Id = int.Parse(reader[0].ToString());
+                    escola.Nome = reader[1].ToString();
+                }
             }
-            
-            escola.Id = int.Parse(reader[0].ToString());
-            escola.Nome = reader[1].ToString();
         }
 
         return escola;
