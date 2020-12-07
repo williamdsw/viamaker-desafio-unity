@@ -11,6 +11,6 @@ Projeto feito para o [Desafio Viamaker - Dev Unity3D](https://github.com/vitorri
 
 ## Créditos
 
-[UI pack by "Kenney.nl"](https://opengameart.org/content/ui-pack)
-[Game Icons by "Kenney.nl"](https://opengameart.org/content/game-icons)
-[AllSky Free - 10 Sky / Skybox Set by rpgwhitelock](https://assetstore.unity.com/packages/2d/textures-materials/sky/allsky-free-10-sky-skybox-set-146014)
+* [UI pack by "Kenney.nl"](https://opengameart.org/content/ui-pack)
+* [Game Icons by "Kenney.nl"](https://opengameart.org/content/game-icons)
+* [AllSky Free - 10 Sky / Skybox Set by rpgwhitelock](https://assetstore.unity.com/packages/2d/textures-materials/sky/allsky-free-10-sky-skybox-set-146014)
