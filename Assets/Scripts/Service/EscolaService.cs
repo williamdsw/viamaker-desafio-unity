@@ -10,16 +10,15 @@ public class EscolaService : EscolaRepository
     {
         bool hasInserted = false;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
-            string query = " INSERT INTO escola (nome) VALUES (@nome) ";
-            using (SqliteCommand command = new SqliteCommand(query, connection))
+            using (SqliteCommand command = new SqliteCommand(Queries.Escola.Insert, connection))
             {
                 command.Parameters.AddWithValue("@nome", escola.Nome);
                 hasInserted = (command.ExecuteNonQuery() == 1);
             }
         }
-      
+
         return hasInserted;
     }
 
@@ -29,10 +28,9 @@ public class EscolaService : EscolaRepository
 
         bool hasUpdated = false;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
-            string query = " UPDATE escola SET nome = @nome WHERE id = @id ";
-            using (SqliteCommand command = new SqliteCommand(query, connection))
+            using (SqliteCommand command = new SqliteCommand(Queries.Escola.Update, connection))
             {
                 command.Parameters.AddWithValue("@nome", escola.Nome);
                 command.Parameters.AddWithValue("@id", escola.Id);
@@ -49,10 +47,9 @@ public class EscolaService : EscolaRepository
 
         bool hasDeleted = false;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
-            string query = " DELETE FROM escola WHERE id = @id ";
-            using (SqliteCommand command = new SqliteCommand(query, connection))
+            using (SqliteCommand command = new SqliteCommand(Queries.Escola.DeleteById, connection))
             {
                 command.Parameters.AddWithValue("@id", id);
                 hasDeleted = (command.ExecuteNonQuery() == 1);
@@ -66,18 +63,17 @@ public class EscolaService : EscolaRepository
     {
         List<Escola> escolas = new List<Escola>();
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
-            string query = " SELECT id, nome FROM escola ORDER BY nome ASC ";
-            using (SqliteCommand command = new SqliteCommand(query, connection))
+            using (SqliteCommand command = new SqliteCommand(Queries.Escola.FindAll, connection))
             {
                 using (SqliteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         Escola escola = new Escola();
-                        escola.Id = int.Parse(reader[0].ToString());
-                        escola.Nome = reader[1].ToString();
+                        escola.Id = int.Parse(reader["id"].ToString());
+                        escola.Nome = reader["nome"].ToString();
                         escolas.Add(escola);
                     }
                 }
@@ -91,10 +87,9 @@ public class EscolaService : EscolaRepository
     {
         Escola escola = new Escola();
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
-            string query = " SELECT id, nome FROM escola WHERE id = @id ";
-            using (SqliteCommand command = new SqliteCommand(query, connection))
+            using (SqliteCommand command = new SqliteCommand(Queries.Escola.FindById, connection))
             {
                 command.Parameters.AddWithValue("@id", id);
 
@@ -102,11 +97,11 @@ public class EscolaService : EscolaRepository
                 {
                     if (!reader.Read())
                     {
-                        throw new Exception (string.Format("Escola não encontrada pelo id: {0}", id));
+                        throw new Exception(string.Format("Escola não encontrada pelo id: {0}", id));
                     }
-                    
-                    escola.Id = int.Parse(reader[0].ToString());
-                    escola.Nome = reader[1].ToString();
+
+                    escola.Id = int.Parse(reader["id"].ToString());
+                    escola.Nome = reader["nome"].ToString();
                 }
             }
         }

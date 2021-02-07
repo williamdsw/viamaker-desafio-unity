@@ -58,7 +58,7 @@ public class InitController : MonoBehaviour
         {
             Debug.LogErrorFormat("Exception ex: {0}", ex.Message);
             SetMessage("Ocorreu algum erro junto ao servidor.");
-            CreateDatabase();
+            CreateDatabase(true);
         }
     }
 
@@ -92,7 +92,7 @@ public class InitController : MonoBehaviour
         {
             Debug.LogErrorFormat("Exception ex: {0}", ex.Message);
             SetMessage("Ocorreu algum erro ao tratar os dados.");
-            CreateDatabase();
+            CreateDatabase(true);
         }
     }
 
@@ -118,7 +118,7 @@ public class InitController : MonoBehaviour
             numberOfExecutedCoroutines++;
             if (numberOfExecutedCoroutines == (escolaResponse.Retorno.Turmas.Count))
             {
-                CreateDatabase();
+                CreateDatabase(false);
                 FillDatabase(escola, turmas, alunos);
             }
         }
@@ -126,18 +126,23 @@ public class InitController : MonoBehaviour
         {
             Debug.LogErrorFormat("Exception ex: {0}", ex.Message);
             SetMessage("Ocorreu algum erro ao tratar os dados.");
-            CreateDatabase();
+            CreateDatabase(true);
         }
     }
 
-    private void CreateDatabase()
+    private void CreateDatabase(bool gotoMain)
     {
         try
         {
             SetMessage("Criando base de dados");
-            database.CreateTable(Environment.CreateTableEscola);
-            database.CreateTable(Environment.CreateTableTurma);
-            database.CreateTable(Environment.CreateTableAluno);
+            database.CreateTable(Queries.Escola.CreateTable);
+            database.CreateTable(Queries.Turma.CreateTable);
+            database.CreateTable(Queries.Aluno.CreateTable);
+
+            if (gotoMain)
+            {
+                StartCoroutine(GotoMain());
+            }
         }
         catch (Exception ex)
         {
