@@ -6,7 +6,9 @@ using TMPro;
 
 public class AlunoController : MonoBehaviour
 {
-    [Header ("Main Container")]
+    // || Inspector References
+
+    [Header("Main Container")]
     [SerializeField] private GameObject alunoContainer;
     [SerializeField] private ScrollRect scrollView;
     [SerializeField] private GameObject content;
@@ -15,26 +17,31 @@ public class AlunoController : MonoBehaviour
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private GameObject emptyText;
 
-    [Header ("Create | Update Container")]
+    [Header("Create | Update Container")]
     [SerializeField] private GameObject createUpdateContainer;
     [SerializeField] private TextMeshProUGUI headerTitle;
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private Button discardButton;
     [SerializeField] private Button acceptButton;
 
-    private MessageModalController modalController;
-    private ConfirmModalController confirmModalController;
+    [Header("Other Controllers")]
+    [SerializeField] private MessageModalController modalController;
+    [SerializeField] private ConfirmModalController confirmModalController;
+
+    // || Cached References
 
     private TurmaService turmaService = new TurmaService();
     private AlunoService alunoService = new AlunoService();
     private Turma localTurma = new Turma();
     private Aluno localAluno = new Aluno();
 
-    private void Start() 
+    private void Awake()
     {
         this.localAluno.Id = 0;
-        modalController = this.GetComponent<MessageModalController>();
-        confirmModalController = this.GetComponent<ConfirmModalController>();
+    }
+
+    private void Start()
+    {
         BindEventListeners();
     }
 
@@ -83,11 +90,11 @@ public class AlunoController : MonoBehaviour
                     return;
                 }
 
-                foreach (var aluno in alunos)
+                foreach (Aluno aluno in alunos)
                 {
                     GameObject item = Instantiate(itemPrefab) as GameObject;
                     item.transform.SetParent(content.transform, false);
-                    
+
                     // Children
                     Transform nameText = item.transform.Find("NameText");
                     Transform deleteButton = item.transform.Find("DeleteButton");
@@ -95,19 +102,19 @@ public class AlunoController : MonoBehaviour
 
                     if (nameText)
                     {
-                        var textMesh = nameText.GetComponent<TextMeshProUGUI>();
+                        TextMeshProUGUI textMesh = nameText.GetComponent<TextMeshProUGUI>();
                         textMesh.SetText(aluno.Nome);
                     }
 
                     if (deleteButton)
                     {
-                        var button = deleteButton.GetComponent<Button>();
+                        Button button = deleteButton.GetComponent<Button>();
                         button.onClick.AddListener(() => HandleOnDelete(aluno, turma));
                     }
 
                     if (editButton)
                     {
-                        var button = editButton.GetComponent<Button>();
+                        Button button = editButton.GetComponent<Button>();
                         button.onClick.AddListener(() => ToggleCreateUpdateContainer(aluno, true));
                     }
                 }
@@ -157,7 +164,7 @@ public class AlunoController : MonoBehaviour
 
     private void HandleOnDelete(Aluno aluno, Turma turma)
     {
-        confirmModalController.Show(response => 
+        confirmModalController.Show(response =>
         {
             if (response)
             {

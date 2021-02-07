@@ -11,7 +11,7 @@ public class AlunoService : AlunoRepository
     {
         bool hasInserted = false;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
             string query = " INSERT INTO aluno (nome, turma_id) VALUES (@nome, @turma_id) ";
             using (SqliteCommand command = new SqliteCommand(query, connection))
@@ -29,7 +29,7 @@ public class AlunoService : AlunoRepository
     {
         bool hasInserted = false;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
             foreach (var aluno in alunos)
@@ -53,7 +53,7 @@ public class AlunoService : AlunoRepository
 
         bool hasUpdated = false;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
             query.Append(" UPDATE aluno SET nome = @nome ");
@@ -77,7 +77,7 @@ public class AlunoService : AlunoRepository
 
         bool hasDeleted = false;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
             string query = " DELETE FROM aluno WHERE id = @id ";
             using (SqliteCommand command = new SqliteCommand(query, connection))
@@ -95,7 +95,7 @@ public class AlunoService : AlunoRepository
         bool hasDeleted = false;
         int count = this.FindByTurma(turmaId).Count;
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
             string query = " DELETE FROM aluno WHERE turma_id = @turma_id";
             using (SqliteCommand command = new SqliteCommand(query, connection))
@@ -112,7 +112,7 @@ public class AlunoService : AlunoRepository
     {
         List<Aluno> alunos = new List<Aluno>();
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
             StringBuilder query = new StringBuilder();
             query.Append(" SELECT aluno.id, aluno.nome FROM aluno AS aluno ");
@@ -143,7 +143,7 @@ public class AlunoService : AlunoRepository
     {
         Aluno aluno = new Aluno();
 
-        using (var connection = database.OpenConnection())
+        using (SqliteConnection connection = database.OpenConnection())
         {
             string query = " SELECT id, nome FROM aluno WHERE id = @id ";
             using (SqliteCommand command = new SqliteCommand(query, connection))

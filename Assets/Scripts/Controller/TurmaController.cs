@@ -6,7 +6,9 @@ using TMPro;
 
 public class TurmaController : MonoBehaviour
 {
-    [Header ("Main Container")]
+    // || Inspector References
+
+    [Header("Main Container")]
     [SerializeField] private GameObject turmaContainer;
     [SerializeField] private ScrollRect scrollView;
     [SerializeField] private GameObject content;
@@ -15,28 +17,32 @@ public class TurmaController : MonoBehaviour
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private GameObject emptyText;
 
-    [Header ("Create | Update Container")]
+    [Header("Create | Update Container")]
     [SerializeField] private GameObject createUpdateContainer;
     [SerializeField] private TextMeshProUGUI headerTitle;
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private Button discardButton;
     [SerializeField] private Button acceptButton;
 
-    private MessageModalController modalController;
-    private ConfirmModalController confirmModalController;
-    private AlunoController alunoController;
+    [Header("Other Controllers")]
+    [SerializeField] private MessageModalController modalController;
+    [SerializeField] private ConfirmModalController confirmModalController;
+    [SerializeField] private AlunoController alunoController;
+
+    // || Cached References
 
     private TurmaService turmaService = new TurmaService();
     private AlunoService alunoService = new AlunoService();
     private Escola localEscola = new Escola();
     private Turma localTurma = new Turma();
 
-    private void Start() 
+    private void Awake()
     {
         this.localTurma.Id = 0;
-        modalController = this.GetComponent<MessageModalController>();
-        confirmModalController = this.GetComponent<ConfirmModalController>();
-        alunoController = this.GetComponent<AlunoController>();
+    }
+
+    private void Start()
+    {
         BindEventListeners();
     }
 
@@ -85,11 +91,11 @@ public class TurmaController : MonoBehaviour
                     return;
                 }
 
-                foreach (var turma in turmas)
+                foreach (Turma turma in turmas)
                 {
                     GameObject item = Instantiate(itemPrefab) as GameObject;
                     item.transform.SetParent(content.transform, false);
-                    
+
                     // Children
                     Transform nameText = item.transform.Find("NameText");
                     Transform deleteButton = item.transform.Find("DeleteButton");
@@ -98,25 +104,25 @@ public class TurmaController : MonoBehaviour
 
                     if (nameText)
                     {
-                        var textMesh = nameText.GetComponent<TextMeshProUGUI>();
+                        TextMeshProUGUI textMesh = nameText.GetComponent<TextMeshProUGUI>();
                         textMesh.SetText(turma.Nome);
                     }
 
                     if (deleteButton)
                     {
-                        var button = deleteButton.GetComponent<Button>();
+                        Button button = deleteButton.GetComponent<Button>();
                         button.onClick.AddListener(() => HandleOnDelete(turma, escola));
                     }
 
                     if (editButton)
                     {
-                        var button = editButton.GetComponent<Button>();
+                        Button button = editButton.GetComponent<Button>();
                         button.onClick.AddListener(() => ToggleCreateUpdateContainer(turma, true));
                     }
 
                     if (studentsButton)
                     {
-                        var button = studentsButton.GetComponent<Button>();
+                        Button button = studentsButton.GetComponent<Button>();
                         button.onClick.AddListener(() => alunoController.Show(turma));
                     }
                 }
@@ -166,14 +172,14 @@ public class TurmaController : MonoBehaviour
 
     private void HandleOnDelete(Turma turma, Escola escola)
     {
-        confirmModalController.Show(response => 
+        confirmModalController.Show(response =>
         {
             if (response)
             {
                 try
                 {
                     bool hasDeleted = false;
-                    var alunos = alunoService.FindByTurma(turma.Id);
+                    List<Aluno> alunos = alunoService.FindByTurma(turma.Id);
                     if (alunos.Count >= 1)
                     {
                         hasDeleted = alunoService.DeleteAllByTurma(turma.Id);

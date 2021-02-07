@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Data;
-using UnityEngine;
 using Mono.Data.Sqlite;
 
 public class DatabaseService
 {
     public SqliteConnection OpenConnection()
     {
-        SqliteConnection connection = new SqliteConnection(Environment.databaseUrl);
+        SqliteConnection connection = new SqliteConnection(Environment.DatabaseUrl);
         connection.Open();
         return connection;
     }

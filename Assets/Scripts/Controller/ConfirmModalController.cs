@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ConfirmModalController : MonoBehaviour
 {
+    // || Inspector References
+
     [SerializeField] private GameObject confirmModal;
     [SerializeField] private Button noButton;
     [SerializeField] private Button yesButton;
 
     private bool result;
-
-    private void Start() 
-    {
-        
-    }
 
     public void Show(Action<bool> callback)
     {
@@ -23,8 +19,8 @@ public class ConfirmModalController : MonoBehaviour
         {
             noButton.onClick.RemoveAllListeners();
             yesButton.onClick.RemoveAllListeners();
-            noButton.onClick.AddListener(() => StartCoroutine(SetResult (false, callback)));
-            yesButton.onClick.AddListener(() => StartCoroutine(SetResult (true, callback)));
+            noButton.onClick.AddListener(() => StartCoroutine(SetResult(false, callback)));
+            yesButton.onClick.AddListener(() => StartCoroutine(SetResult(true, callback)));
             confirmModal.SetActive(true);
         }
     }

@@ -19,10 +19,4 @@ public class Turma
         Nome = nome;
         Escola = escola;
     }
-
-    public Turma(string nome, Escola escola)
-    {
-        Nome = nome;
-        Escola = escola;
-    }
 }

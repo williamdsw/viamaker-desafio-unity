@@ -11,18 +11,13 @@ public class Escola
 
     public int Id { get => id; set => id = value; }
     public string Nome { get => nome; set => nome = value; }
-    public List<Turma> Turmas { get => turmas; }
+    public List<Turma> Turmas => turmas;
 
     public Escola() {}
 
     public Escola(int id, string nome)
     {
         Id = id;
-        Nome = nome;
-    }
-
-    public Escola(string nome)
-    {
         Nome = nome;
     }
 }

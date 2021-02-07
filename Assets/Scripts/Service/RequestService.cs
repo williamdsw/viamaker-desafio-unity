@@ -10,7 +10,7 @@ public class RequestService
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
             request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", $"Bearer {Environment.TOKEN_API}");
+            request.SetRequestHeader("Authorization", string.Format("Bearer {0}", Environment.TokenAPI));
             yield return request.SendWebRequest();
 
             if (request.isNetworkError)
@@ -27,7 +27,7 @@ public class RequestService
         using (UnityWebRequest request = UnityWebRequest.Post(url, formFields))
         {
             request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.SetRequestHeader("Authorization", $"Bearer {Environment.TOKEN_API}");
+            request.SetRequestHeader("Authorization", string.Format("Bearer {0}", Environment.TokenAPI));
             yield return request.SendWebRequest();
 
             if (request.isNetworkError)

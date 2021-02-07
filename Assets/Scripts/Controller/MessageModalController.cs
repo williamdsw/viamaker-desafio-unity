@@ -1,15 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class MessageModalController : MonoBehaviour
 {
+    // || Inspector References
+
+    [Header("UI Elements")]
     [SerializeField] private GameObject messageModal;
     [SerializeField] private TextMeshProUGUI header;
     [SerializeField] private TextMeshProUGUI body;
     [SerializeField] private Button closeButton;
+
+    // || Cached References
+
     private Transform container;
 
     private void Start()
@@ -36,5 +41,4 @@ public class MessageModalController : MonoBehaviour
             messageModal.SetActive(true);
         }
     }
-
 }

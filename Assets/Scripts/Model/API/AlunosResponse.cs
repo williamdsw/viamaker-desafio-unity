@@ -8,6 +8,6 @@ public class AlunosResponse
     [SerializeField] private bool sucesso;
     [SerializeField] private List<Aluno> retorno;
 
-    public bool Sucesso { get => sucesso; }
-    public List<Aluno> Retorno { get => retorno; }
+    public bool Sucesso => sucesso;
+    public List<Aluno> Retorno => retorno;
 }
