@@ -1,44 +1,46 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class MessageModalController : MonoBehaviour
+namespace Controller
 {
-    // || Inspector References
-
-    [Header("UI Elements")]
-    [SerializeField] private GameObject messageModal;
-    [SerializeField] private TextMeshProUGUI header;
-    [SerializeField] private TextMeshProUGUI body;
-    [SerializeField] private Button closeButton;
-
-    // || Cached References
-
-    private Transform container;
-
-    private void Start()
+    public class MessageModalController : MonoBehaviour
     {
-        if (messageModal)
-        {
-            container = messageModal.transform.Find("Overlay").Find("Container");
+        // || Inspector References
 
-            if (closeButton)
+        [Header("UI Elements")]
+        [SerializeField] private GameObject messageModal;
+        [SerializeField] private TextMeshProUGUI header;
+        [SerializeField] private TextMeshProUGUI body;
+        [SerializeField] private Button closeButton;
+
+        // || Cached References
+
+        private Transform container;
+
+        private void Start()
+        {
+            if (messageModal)
             {
-                closeButton.onClick.AddListener(() => messageModal.SetActive(false));
+                container = messageModal.transform.Find("Overlay").Find("Container");
+
+                if (closeButton)
+                {
+                    closeButton.onClick.AddListener(() => messageModal.SetActive(false));
+                }
             }
         }
-    }
 
-    public void Show(string title, string message, Color color)
-    {
-        if (messageModal && header && body && container)
+        public void Show(string title, string message, Color color)
         {
-            header.text = title;
-            body.text = message;
-            Image image = container.GetComponent<Image>();
-            image.color = color;
-            messageModal.SetActive(true);
+            if (messageModal && header && body && container)
+            {
+                header.text = title;
+                body.text = message;
+                Image image = container.GetComponent<Image>();
+                image.color = color;
+                messageModal.SetActive(true);
+            }
         }
     }
 }

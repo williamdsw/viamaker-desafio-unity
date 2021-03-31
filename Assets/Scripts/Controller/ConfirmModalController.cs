@@ -3,32 +3,35 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ConfirmModalController : MonoBehaviour
+namespace Controller
 {
-    // || Inspector References
-
-    [SerializeField] private GameObject confirmModal;
-    [SerializeField] private Button noButton;
-    [SerializeField] private Button yesButton;
-
-    private bool result;
-
-    public void Show(Action<bool> callback)
+    public class ConfirmModalController : MonoBehaviour
     {
-        if (confirmModal && noButton && yesButton)
+        // || Inspector References
+
+        [SerializeField] private GameObject confirmModal;
+        [SerializeField] private Button noButton;
+        [SerializeField] private Button yesButton;
+
+        private bool result;
+
+        public void Show(Action<bool> callback)
         {
-            noButton.onClick.RemoveAllListeners();
-            yesButton.onClick.RemoveAllListeners();
-            noButton.onClick.AddListener(() => StartCoroutine(SetResult(false, callback)));
-            yesButton.onClick.AddListener(() => StartCoroutine(SetResult(true, callback)));
-            confirmModal.SetActive(true);
+            if (confirmModal && noButton && yesButton)
+            {
+                noButton.onClick.RemoveAllListeners();
+                yesButton.onClick.RemoveAllListeners();
+                noButton.onClick.AddListener(() => StartCoroutine(SetResult(false, callback)));
+                yesButton.onClick.AddListener(() => StartCoroutine(SetResult(true, callback)));
+                confirmModal.SetActive(true);
+            }
         }
-    }
 
-    private IEnumerator SetResult(bool flag, Action<bool> callback)
-    {
-        yield return flag;
-        callback(flag);
-        confirmModal.SetActive(false);
+        private IEnumerator SetResult(bool flag, Action<bool> callback)
+        {
+            yield return flag;
+            callback(flag);
+            confirmModal.SetActive(false);
+        }
     }
 }

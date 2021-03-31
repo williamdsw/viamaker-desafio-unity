@@ -3,39 +3,58 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 
-public class RequestService
+namespace Service
 {
-    public IEnumerator GetRequest(string url, Action<string> response)
+    public class RequestService
     {
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        public IEnumerator GetRequest(string url, Action<string> callback)
         {
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", string.Format("Bearer {0}", Environment.TokenAPI));
-            yield return request.SendWebRequest();
-
-            if (request.isNetworkError)
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
             {
-                throw new Exception("Erro ao buscar recursos!");
-            }
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", string.Format("Bearer {0}", Config.Environment.TokenAPI));
+                yield return request.SendWebRequest();
 
-            response(request.downloadHandler.text);
+                try
+                {
+                    if (!string.IsNullOrEmpty(request.error))
+                    {
+                        throw new Exception("Erro ao buscar recursos!");
+                    }
+
+                    callback(request.downloadHandler.text);
+                }
+                catch (Exception ex)
+                {
+                    callback(null);
+                    throw ex;
+                }
+            }
         }
-    }
 
-    public IEnumerator PostRequest(string url, Dictionary<string, string> formFields, Action<string> response)
-    {
-        using (UnityWebRequest request = UnityWebRequest.Post(url, formFields))
+        public IEnumerator PostRequest(string url, Dictionary<string, string> form, Action<string> callback)
         {
-            request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.SetRequestHeader("Authorization", string.Format("Bearer {0}", Environment.TokenAPI));
-            yield return request.SendWebRequest();
-
-            if (request.isNetworkError)
+            using (UnityWebRequest request = UnityWebRequest.Post(url, form))
             {
-                throw new Exception("Erro ao buscar recursos!");
-            }
+                request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.SetRequestHeader("Authorization", string.Format("Bearer {0}", Config.Environment.TokenAPI));
+                yield return request.SendWebRequest();
 
-            response(request.downloadHandler.text);
+                try
+                {
+                    if (!string.IsNullOrEmpty(request.error))
+                    {
+                        throw new Exception("Erro ao buscar recursos!");
+                    }
+
+                    callback(request.downloadHandler.text);
+                }
+                catch (Exception ex)
+                {
+                    callback(null);
+                    throw ex;
+                }
+            }
         }
     }
 }

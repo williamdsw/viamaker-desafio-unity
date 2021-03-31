@@ -1,9 +1,12 @@
 ﻿using System.IO;
 
-public class FileService
+namespace Service
 {
-    public static bool CheckIfFileExists(string path)
+    public class FileService
     {
-        return File.Exists(path);
+        public static bool CheckIfFileExists(string path)
+        {
+            return File.Exists(path);
+        }
     }
 }

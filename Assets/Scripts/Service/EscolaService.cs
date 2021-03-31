@@ -1,111 +1,118 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Config;
+using Model;
 using Mono.Data.Sqlite;
+using Repository;
+using System;
+using System.Collections.Generic;
 
-public class EscolaService : EscolaRepository
+namespace Service
 {
-    private DatabaseService database = new DatabaseService();
 
-    public bool Insert(Escola escola)
+    public class EscolaService : EscolaRepository
     {
-        bool hasInserted = false;
+        private DatabaseService database = new DatabaseService();
 
-        using (SqliteConnection connection = database.OpenConnection())
+        public bool Insert(Escola escola)
         {
-            using (SqliteCommand command = new SqliteCommand(Queries.Escola.Insert, connection))
+            bool hasInserted = false;
+
+            using (SqliteConnection connection = database.OpenConnection())
             {
-                command.Parameters.AddWithValue("@nome", escola.Nome);
-                hasInserted = (command.ExecuteNonQuery() == 1);
-            }
-        }
-
-        return hasInserted;
-    }
-
-    public bool Update(Escola escola)
-    {
-        this.FindById(escola.Id);
-
-        bool hasUpdated = false;
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Escola.Update, connection))
-            {
-                command.Parameters.AddWithValue("@nome", escola.Nome);
-                command.Parameters.AddWithValue("@id", escola.Id);
-                hasUpdated = (command.ExecuteNonQuery() == 1);
-            }
-        }
-
-        return hasUpdated;
-    }
-
-    public bool DeleteById(int id)
-    {
-        this.FindById(id);
-
-        bool hasDeleted = false;
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Escola.DeleteById, connection))
-            {
-                command.Parameters.AddWithValue("@id", id);
-                hasDeleted = (command.ExecuteNonQuery() == 1);
-            }
-        }
-
-        return hasDeleted;
-    }
-
-    public List<Escola> FindAll()
-    {
-        List<Escola> escolas = new List<Escola>();
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Escola.FindAll, connection))
-            {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(Queries.Escola.Insert, connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@nome", escola.Nome);
+                    hasInserted = (command.ExecuteNonQuery() == 1);
+                }
+            }
+
+            return hasInserted;
+        }
+
+        public bool Update(Escola escola)
+        {
+            this.FindById(escola.Id);
+
+            bool hasUpdated = false;
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Escola.Update, connection))
+                {
+                    command.Parameters.AddWithValue("@nome", escola.Nome);
+                    command.Parameters.AddWithValue("@id", escola.Id);
+                    hasUpdated = (command.ExecuteNonQuery() == 1);
+                }
+            }
+
+            return hasUpdated;
+        }
+
+        public bool DeleteById(int id)
+        {
+            this.FindById(id);
+
+            bool hasDeleted = false;
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Escola.DeleteById, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    hasDeleted = (command.ExecuteNonQuery() == 1);
+                }
+            }
+
+            return hasDeleted;
+        }
+
+        public List<Escola> FindAll()
+        {
+            List<Escola> escolas = new List<Escola>();
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Escola.FindAll, connection))
+                {
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        Escola escola = new Escola();
+                        while (reader.Read())
+                        {
+                            Escola escola = new Escola();
+                            escola.Id = int.Parse(reader["id"].ToString());
+                            escola.Nome = reader["nome"].ToString();
+                            escolas.Add(escola);
+                        }
+                    }
+                }
+            }
+
+            return escolas;
+        }
+
+        public Escola FindById(int id)
+        {
+            Escola escola = new Escola();
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Escola.FindById, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                        {
+                            throw new Exception(string.Format("Escola não encontrada pelo id: {0}", id));
+                        }
+
                         escola.Id = int.Parse(reader["id"].ToString());
                         escola.Nome = reader["nome"].ToString();
-                        escolas.Add(escola);
                     }
                 }
             }
+
+            return escola;
         }
-
-        return escolas;
-    }
-
-    public Escola FindById(int id)
-    {
-        Escola escola = new Escola();
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Escola.FindById, connection))
-            {
-                command.Parameters.AddWithValue("@id", id);
-
-                using (SqliteDataReader reader = command.ExecuteReader())
-                {
-                    if (!reader.Read())
-                    {
-                        throw new Exception(string.Format("Escola não encontrada pelo id: {0}", id));
-                    }
-
-                    escola.Id = int.Parse(reader["id"].ToString());
-                    escola.Nome = reader["nome"].ToString();
-                }
-            }
-        }
-
-        return escola;
     }
 }

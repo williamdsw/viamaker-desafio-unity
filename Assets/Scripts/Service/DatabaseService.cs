@@ -1,29 +1,32 @@
-﻿using System;
+﻿using Mono.Data.Sqlite;
+using System;
 using System.Data;
-using Mono.Data.Sqlite;
 
-public class DatabaseService
+namespace Service
 {
-    public SqliteConnection OpenConnection()
+    public class DatabaseService
     {
-        SqliteConnection connection = new SqliteConnection(Environment.DatabaseUrl);
-        connection.Open();
-        return connection;
-    }
-
-    public void CreateTable(string query)
-    {
-        if (string.IsNullOrEmpty (query) || string.IsNullOrWhiteSpace(query))
+        public SqliteConnection OpenConnection()
         {
-            throw new Exception ("Query para criação de tabela não pode ser vazia!");
+            SqliteConnection connection = new SqliteConnection(Config.Environment.DatabaseUrl);
+            connection.Open();
+            return connection;
         }
 
-        using (SqliteConnection connection = this.OpenConnection())
+        public void CreateTable(string query)
         {
-            using (IDbCommand command = connection.CreateCommand())
+            if (string.IsNullOrEmpty(query) || string.IsNullOrWhiteSpace(query))
             {
-                command.CommandText = query;
-                command.ExecuteNonQuery();
+                throw new Exception("Query para criação de tabela não pode ser vazia!");
+            }
+
+            using (SqliteConnection connection = this.OpenConnection())
+            {
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = query;
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }

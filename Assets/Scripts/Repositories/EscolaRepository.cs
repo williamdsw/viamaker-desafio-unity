@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Model;
+using System.Collections.Generic;
 
-public interface EscolaRepository
+namespace Repository
 {
-    bool Insert(Escola escola);
-    bool Update(Escola escola);
-    bool DeleteById(int id);
-    List<Escola> FindAll();
-    Escola FindById(int id);
+    public interface EscolaRepository
+    {
+        bool Insert(Escola escola);
+        bool Update(Escola escola);
+        bool DeleteById(int id);
+        List<Escola> FindAll();
+        Escola FindById(int id);
+    }
 }

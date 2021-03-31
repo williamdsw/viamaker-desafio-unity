@@ -1,149 +1,155 @@
-﻿using System;
+﻿using Model;
+using Config;
+using Mono.Data.Sqlite;
+using Repository;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Mono.Data.Sqlite;
 
-public class AlunoService : AlunoRepository
+namespace Service
 {
-    private DatabaseService database = new DatabaseService();
-
-    public bool Insert(Aluno aluno)
+    public class AlunoService : AlunoRepository
     {
-        bool hasInserted = false;
+        private DatabaseService database = new DatabaseService();
 
-        using (SqliteConnection connection = database.OpenConnection())
+        public bool Insert(Aluno aluno)
         {
-            using (SqliteCommand command = new SqliteCommand(Queries.Aluno.Insert, connection))
+            bool hasInserted = false;
+
+            using (SqliteConnection connection = database.OpenConnection())
             {
-                command.Parameters.AddWithValue("@nome", aluno.Nome);
-                command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
-                hasInserted = (command.ExecuteNonQuery() == 1);
-            }
-        }
-      
-        return hasInserted;
-    }
-
-    public bool InsertMultiples(List<Aluno> alunos)
-    {
-        bool hasInserted = false;
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            StringBuilder query = new StringBuilder();
-            alunos.ForEach(aluno => query.AppendFormat(Queries.Aluno.InsertMultiples, aluno.Nome, aluno.Turma.Id));
-            using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
-            {
-                hasInserted = (command.ExecuteNonQuery() == alunos.Count);
-            }
-        }
-      
-        return hasInserted;
-    }
-
-    public bool Update(Aluno aluno)
-    {
-        this.FindById(aluno.Id);
-
-        bool hasUpdated = false;
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Aluno.Update, connection))
-            {
-                command.Parameters.AddWithValue("@nome", aluno.Nome);
-                command.Parameters.AddWithValue("@id", aluno.Id);
-                command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
-                hasUpdated = (command.ExecuteNonQuery() == 1);
-            }
-        }
-
-        return hasUpdated;
-    }
-
-    public bool DeleteById(int id)
-    {
-        this.FindById(id);
-
-        bool hasDeleted = false;
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Aluno.Delete, connection))
-            {
-                command.Parameters.AddWithValue("@id", id);
-                hasDeleted = (command.ExecuteNonQuery() == 1);
-            }
-        }
-
-        return hasDeleted;
-    }
-
-    public bool DeleteAllByTurma(int turmaId)
-    {
-        bool hasDeleted = false;
-        int count = this.FindByTurma(turmaId).Count;
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Aluno.DeleteAllByTurma, connection))
-            {
-                command.Parameters.AddWithValue("@turma_id", turmaId);
-                hasDeleted = (command.ExecuteNonQuery() == count);
-            }
-        }
-
-        return hasDeleted;
-    }
-
-    public List<Aluno> FindByTurma(int turmaId)
-    {
-        List<Aluno> alunos = new List<Aluno>();
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Aluno.FindByTurma, connection))
-            {
-                command.Parameters.AddWithValue("@turma_id", turmaId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(Queries.Aluno.Insert, connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@nome", aluno.Nome);
+                    command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
+                    hasInserted = (command.ExecuteNonQuery() == 1);
+                }
+            }
+
+            return hasInserted;
+        }
+
+        public bool InsertMultiples(List<Aluno> alunos)
+        {
+            bool hasInserted = false;
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                StringBuilder query = new StringBuilder();
+                alunos.ForEach(aluno => query.AppendFormat(Queries.Aluno.InsertMultiples, aluno.Nome, aluno.Turma.Id));
+                using (SqliteCommand command = new SqliteCommand(query.ToString(), connection))
+                {
+                    hasInserted = (command.ExecuteNonQuery() == alunos.Count);
+                }
+            }
+
+            return hasInserted;
+        }
+
+        public bool Update(Aluno aluno)
+        {
+            this.FindById(aluno.Id);
+
+            bool hasUpdated = false;
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Aluno.Update, connection))
+                {
+                    command.Parameters.AddWithValue("@nome", aluno.Nome);
+                    command.Parameters.AddWithValue("@id", aluno.Id);
+                    command.Parameters.AddWithValue("@turma_id", aluno.Turma.Id);
+                    hasUpdated = (command.ExecuteNonQuery() == 1);
+                }
+            }
+
+            return hasUpdated;
+        }
+
+        public bool DeleteById(int id)
+        {
+            this.FindById(id);
+
+            bool hasDeleted = false;
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Aluno.Delete, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    hasDeleted = (command.ExecuteNonQuery() == 1);
+                }
+            }
+
+            return hasDeleted;
+        }
+
+        public bool DeleteAllByTurma(int turmaId)
+        {
+            bool hasDeleted = false;
+            int count = this.FindByTurma(turmaId).Count;
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Aluno.DeleteAllByTurma, connection))
+                {
+                    command.Parameters.AddWithValue("@turma_id", turmaId);
+                    hasDeleted = (command.ExecuteNonQuery() == count);
+                }
+            }
+
+            return hasDeleted;
+        }
+
+        public List<Aluno> FindByTurma(int turmaId)
+        {
+            List<Aluno> alunos = new List<Aluno>();
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Aluno.FindByTurma, connection))
+                {
+                    command.Parameters.AddWithValue("@turma_id", turmaId);
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        Aluno aluno = new Aluno();
+                        while (reader.Read())
+                        {
+                            Aluno aluno = new Aluno();
+                            aluno.Id = int.Parse(reader["id"].ToString());
+                            aluno.Nome = reader["nome"].ToString();
+                            alunos.Add(aluno);
+                        }
+                    }
+                }
+            }
+
+            return alunos;
+        }
+
+        public Aluno FindById(int id)
+        {
+            Aluno aluno = new Aluno();
+
+            using (SqliteConnection connection = database.OpenConnection())
+            {
+                using (SqliteCommand command = new SqliteCommand(Queries.Aluno.FindById, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                        {
+                            throw new Exception(string.Format("Aluno não encontrado pelo id: {0}", id));
+                        }
+
                         aluno.Id = int.Parse(reader["id"].ToString());
                         aluno.Nome = reader["nome"].ToString();
-                        alunos.Add(aluno);
                     }
                 }
             }
+
+            return aluno;
         }
-
-        return alunos;
-    }
-
-    public Aluno FindById(int id)
-    {
-        Aluno aluno = new Aluno();
-
-        using (SqliteConnection connection = database.OpenConnection())
-        {
-            using (SqliteCommand command = new SqliteCommand(Queries.Aluno.FindById, connection))
-            {
-                command.Parameters.AddWithValue("@id", id);
-
-                using (SqliteDataReader reader = command.ExecuteReader())
-                {
-                    if (!reader.Read())
-                    {
-                        throw new Exception (string.Format("Aluno não encontrado pelo id: {0}", id));
-                    }
-                    
-                    aluno.Id = int.Parse(reader["id"].ToString());
-                    aluno.Nome = reader["nome"].ToString();
-                }
-            }
-        }
-
-        return aluno;
     }
 }
